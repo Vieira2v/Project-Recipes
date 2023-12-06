@@ -1,5 +1,5 @@
-from django.shortcuts import render      # type: ignore
-from utils.recipes.factory import make_recipe  # type: ignore
+from django.shortcuts import render  # type:ignore
+from utils.recipes.factory import make_recipe
 
 
 def home(request):
@@ -11,4 +11,5 @@ def home(request):
 def recipe(request, id):
     return render(request, 'recipes/pages/recipe-view.html', context={
         'recipe': make_recipe(),
+        'is_detail_page': True,
     })
