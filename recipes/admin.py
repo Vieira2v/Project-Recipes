@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin # type: ignore # noqa: E261
 from .models import Category, Recipe
 
 

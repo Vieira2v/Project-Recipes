@@ -1,5 +1,5 @@
-from django.db import models
-from django.contrib.auth.models import User
+from django.db import models # type: ignore # noqa: E261
+from django.contrib.auth.models import User # type: ignore # noqa: E261
 
 
 class Category(models.Model):

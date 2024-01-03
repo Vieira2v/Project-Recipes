@@ -16,8 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin  # type: ignore
 from django.urls import path, include  # type: ignore
-from django.conf.urls.static import static
-from django.conf import settings
+from django.conf.urls.static import static # type: ignore # noqa: E261
+from django.conf import settings # type: ignore # noqa: E261
 
 
 urlpatterns = [
