@@ -1,7 +1,5 @@
 from django.test import TestCase  # type: ignore # noqa: F401
-from django.urls import resolve, reverse  # type: ignore # noqa: F401
-
-# Todos os tests ficaram dentro da classe abaixo.
+from django.urls import reverse  # type: ignore # noqa: F401
 
 
 class RecipeURLsTest(TestCase):
@@ -16,4 +14,3 @@ class RecipeURLsTest(TestCase):
     def test_recipe_detail_url_is_correct(self):
         url = reverse('recipes:recipe', kwargs={'id': 1})
         self.assertEqual(url, '/recipes/1/')
-
