@@ -1,10 +1,17 @@
-from django.test import TestCase  # type: ignore # noqa: F401
 from django.urls import resolve, reverse  # type: ignore # noqa: F401
 from recipes import views
-from recipes.models import Category, Recipe, User  # type: ignore # noqa: F401
+from .test_recipe_base import RecipeTestBase
 
 
-class RecipeViewsTest(TestCase):
+class RecipeViewsTest(RecipeTestBase):
+
+    def test_recipe_home_view_function_is_correct(self):
+        view = resolve(reverse('recipes:home'))
+        self.assertIs(view.func, views.home)
+
+    def test_recipe_home_view_return_status_code_200_OK(self):
+        response = self.client.get(reverse('recipes:home'))
+        self.assertEqual(response.status_code, 200)
 
     def test_recipe_home_view_loads_correct_template(self):
         response = self.client.get(reverse('recipes:home'))
@@ -18,28 +25,7 @@ class RecipeViewsTest(TestCase):
         )
 
     def test_recipe_home_template_loads_recipes(self):
-        category = Category.objects.create(name='Category')
-        author = User.objects.create_user(
-            first_name='user',
-            last_name='name',
-            username='username',
-            password='123456',
-            email='username@email.com',
-        )
-        recipe = Recipe.objects.create(  # noqa: F841
-            category=category,
-            author=author,
-            title='Recipe Title',
-            description='Recipe Description',
-            slug='recipe-slug',
-            preparation_time=10,
-            preparation_time_unit='Minutos',
-            servings=5,
-            servings_unit='Porções',
-            preparation_steps='Recipe Preparation Steps',
-            preparation_steps_is_html=False,
-            is_published=True,
-        )
+        self.make_recipe()
         # Vou executar o teste/URL agora.
         response = self.client.get(reverse('recipes:home'))
         # Vou converter a resposta da minha URL em uma string.
@@ -52,10 +38,6 @@ class RecipeViewsTest(TestCase):
         self.assertIn('5 Porções', content)
 # Se o meu numero de receitas for diferente de 1, meu teste ira dar erro.
         self.assertEqual(len(response_context_recipes), 1)
-
-    def test_recipe_home_view_function_is_correct(self):
-        view = resolve('/')
-        self.assertIs(view.func, views.home)
 
     def test_recipe_category_view_function_is_correct(self):
         view = resolve(reverse('recipes:category', kwargs={'category_id': 1000}))  # noqa: E501
