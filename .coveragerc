@@ -1,0 +1,3 @@
+[run]  # type: ignore
+branch = True
+omit = venv/*,**/*test*.py,manage.py    # noqa: E999  # type: ignore[misc]
