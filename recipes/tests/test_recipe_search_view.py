@@ -46,10 +46,11 @@ class RecipeSearchViewTest(RecipeTestBase):
         response2 = self.client.get(f'{search_url}?q={title2}')
     # E aqui vou qrer ambas.
         response_both = self.client.get(f'{search_url}?q=this')
-
+    # Aqui vou ver se na recipe1 eu irei ter a response1.
         self.assertIn(recipe1, response1.context['recipes'])
+    # Aqui vou ver se na recipe2 eu não irei ter a response1.
         self.assertNotIn(recipe2, response1.context['recipes'])
-
+    # Aqui estou fazendo a mesma coisa de cima só q invertido.
         self.assertIn(recipe2, response2.context['recipes'])
         self.assertNotIn(recipe1, response2.context['recipes'])
 
