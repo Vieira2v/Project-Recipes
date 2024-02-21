@@ -3,29 +3,20 @@ from recipes.models import Recipe
 from django.http import Http404     # type:ignore
 from django.db.models import Q   # type: ignore # noqa: F401
 from django.core.paginator import Paginator  # type: ignore # noqa: F401
-from utils.pagination import make_pagination_range
+from utils.pagination import make_pagination
+import os
+
+PER_PAGES = os.environ.get('PER_PAGE')
 
 
 def home(request):
     recipes = Recipe.objects.filter(
         is_published=True
     ).order_by('-id')
-
-    try:
-        current_page = int(request.GET.get('page', 1))
-    except ValueError:
-        current_page = 1
-    paginator = Paginator(recipes, 9)
-    page_object = paginator.get_page(current_page)
-
-    pagination_range = make_pagination_range(
-        paginator.page_range,
-        2,
-        current_page
-    )
+    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
 
     return render(request, 'recipes/pages/home.html', context={
-        'recipes': page_object,
+        'recipes': page_obj,
         'pagination_range': pagination_range
     })
 
@@ -33,11 +24,15 @@ def home(request):
 def category(request, category_id):
     recipes = Recipe.objects.filter(category__id=category_id,
                                     is_published=True).order_by('-id')
+
+    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
+
     if not recipes:
         raise Http404('Not found')
 
     return render(request, 'recipes/pages/category.html', context={
-        'recipes': recipes,
+        'recipes': page_obj,
+        'pagination_range': pagination_range,
         'title': f'{recipes.first().category.name} - Category |'
     })
 
@@ -70,8 +65,12 @@ def search(request):
     # Agora vou ordenar pelo id de forma decrescente para ficar em primeiro
     # as receitas publicadas mais recentes.
 
+    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
+
     return render(request, 'recipes/pages/search.html', {
         'page_title': f'Search for "{search_term}"',
         'search_term': search_term,
-        'recipes': recipes,
+        'recipes': page_obj,
+        'pagination_range': pagination_range,
+        'additional_url_query': f'&q={search_term}',
     })
