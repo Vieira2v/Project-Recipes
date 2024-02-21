@@ -6,14 +6,14 @@ from django.core.paginator import Paginator  # type: ignore # noqa: F401
 from utils.pagination import make_pagination
 import os
 
-PER_PAGES = os.environ.get('PER_PAGE')
+PER_PAGE = int(os.environ.get('PER_PAGE', 6))
 
 
 def home(request):
     recipes = Recipe.objects.filter(
         is_published=True
     ).order_by('-id')
-    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
+    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGE)
 
     return render(request, 'recipes/pages/home.html', context={
         'recipes': page_obj,
@@ -25,7 +25,7 @@ def category(request, category_id):
     recipes = Recipe.objects.filter(category__id=category_id,
                                     is_published=True).order_by('-id')
 
-    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
+    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGE)
 
     if not recipes:
         raise Http404('Not found')
@@ -65,7 +65,7 @@ def search(request):
     # Agora vou ordenar pelo id de forma decrescente para ficar em primeiro
     # as receitas publicadas mais recentes.
 
-    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGES)
+    page_obj, pagination_range = make_pagination(request, recipes, PER_PAGE)
 
     return render(request, 'recipes/pages/search.html', {
         'page_title': f'Search for "{search_term}"',
