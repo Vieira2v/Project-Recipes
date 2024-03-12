@@ -35,8 +35,37 @@ class RegisterForm(forms.ModelForm):
         add_placeholder(self.fields['first_name'], 'Ex.: John')
         add_placeholder(self.fields['last_name'], 'Ex.: Doe')
         add_attr(self.fields['username'], 'css', 'a-css-class')
+
+    username = forms.CharField(
+        label='Username',
+        help_text=(
+            'Username must have letters, numbers or one of those @.+-_. '
+            'The length should be between 4 and 150 characters.'
+        ),
+        error_messages={
+            'required': 'This field must not be empty',
+            'min_length': 'Username must have at least 4 characters',
+            'max_length': 'Username must have less than 150 characters',
+        },
+        min_length=4, max_length=150,
+    )
+
+    first_name = forms.CharField(
+        error_messages={'required': 'Write your first name'},
+        label='First name'
+    )
+
+    last_name = forms.CharField(
+        error_messages={'required': 'Write your last name'},
+        label='Last name'
+    )
+
+    email = forms.CharField(
+        error_messages={'required': 'Email is required'},
+        help_text=('The e-mail must be valid.'),
+        label='E-mail'
+    )
     password = forms.CharField(
-        required=True,
         widget=forms.PasswordInput(attrs={
             'placeholder': 'Your password'
         }),
@@ -52,10 +81,12 @@ class RegisterForm(forms.ModelForm):
         label='Password'
     )
     password2 = forms.CharField(
-        required=True,
         widget=forms.PasswordInput(attrs={
             'placeholder': 'Repeat your password'
         }),
+        error_messages={
+            'required': 'Please, repeat your password'
+        },
         label='Password2'
     )
 
@@ -75,19 +106,6 @@ class RegisterForm(forms.ModelForm):
             'last_name': 'Last name',
             'email': 'E-mail',
             'password': 'Password',
-        }
-        help_texts = {
-            'email': 'The e-mail must be valid.',
-        }
-        error_messages = {
-            'username': {
-                'required': 'This field must not be empty',
-            }
-        }
-        widgets = {
-            'password': forms.PasswordInput(attrs={
-                'placeholder': 'Type your password here'
-            })
         }
 
     def clean(self):
