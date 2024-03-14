@@ -110,9 +110,9 @@ class RegisterForm(forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email', '')
-        exist = User.objects.filter(email=email).exists()
+        exists = User.objects.filter(email=email).exists()
 
-        if exist:
+        if exists:
             raise ValidationError(
                 'User e-mail is already in use', code='invalid',
             )
