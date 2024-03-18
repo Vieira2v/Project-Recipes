@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect  # type: ignore # noqa: F401
-from .forms import RegisterForm  # type: ignore # noqa: F401
+from .forms import RegisterForm, LoginForm  # type: ignore # noqa: F401
 from django.http import Http404  # type: ignore # noqa: F401
 from django.contrib import messages  # type: ignore # noqa: F401
 from django.urls import reverse  # type: ignore # noqa: F401
+from django.contrib.auth import authenticate, login  # type: ignore # noqa:F401
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required  # type: ignore
 
 
 def register_view(request):
@@ -33,13 +36,50 @@ def register_create(request):
         messages.success(request, 'Your user is created, please log in.')
 
         del (request.session['register_form_data'])
+        return redirect(reverse('authors:login'))
 
     return redirect('authors:register')
 
 
 def login_view(request):
-    return render(request, 'authors/pages/login.html')
+    form = LoginForm()
+    return render(request, 'authors/pages/login.html', {
+        'form': form,
+        'form_action': reverse('authors:login_create'),
+    })
 
 
 def login_create(request):
-    return render(request, 'authors/pages/login.html')
+    if not request.POST:
+        raise Http404()
+
+    form = LoginForm(request.POST)
+    login_url = reverse('authors:login')
+
+    if form.is_valid():
+        authenticated_user = authenticate(
+            username=form.cleaned_data.get('username', ''),
+            password=form.cleaned_data.get('password', ''),
+        )
+
+        if authenticated_user is not None:
+            messages.success(request, ' Your are logged in.')
+            login(request, authenticated_user)
+        else:
+            messages.error(request, 'Invalid credentials')
+    else:
+        messages.error(request, 'Invalid username or password')
+
+    return redirect(login_url)
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def logout_view(request):
+    if not request.POST:
+        return redirect(reverse('authors:login'))
+
+    if request.POST.get('username') != request.user.username:
+        return redirect(reverse('authors:login'))
+
+    logout(request)
+    return redirect(reverse('authors:login'))
