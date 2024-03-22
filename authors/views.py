@@ -6,6 +6,8 @@ from django.urls import reverse  # type: ignore # noqa: F401
 from django.contrib.auth import authenticate, login  # type: ignore # noqa:F401
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required  # type: ignore
+from recipes.models import Recipe
+from authors.forms.recipe_form import AuthorRecipeForm
 
 
 def register_view(request):
@@ -86,4 +88,39 @@ def logout_view(request):
 
 @login_required(login_url='authors:login', redirect_field_name='next')
 def dashboard(request):
-    return render(request, 'authors/pages/dashboard.html')
+    recipes = Recipe.objects.filter(
+        is_published=False,
+        author=request.user
+    )
+    return render(
+        request,
+        'authors/pages/dashboard.html',
+        context={
+                'recipes': recipes,
+        }
+    )
+
+
+@login_required(login_url='authors:login', redirect_field_name='next')
+def dashboard_recipe_edit(request, id):
+    recipe = Recipe.objects.filter(
+        is_published=False,
+        author=request.user,
+        pk=id,
+    ).first()
+
+    if not recipe:
+        raise Http404()
+
+    form = AuthorRecipeForm(
+        data=request.POST or None,
+        instance=recipe
+    )
+
+    return render(
+        request,
+        'authors/pages/dashboard_recipe.html',
+        context={
+            'form': form
+        }
+    )
